@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Typing Speed Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e2f;
+      color: #fff;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    #textDisplay {
+      padding: 20px;
+      border: 1px solid #555;
+      margin-bottom: 10px;
+      font-size: 18px;
+      background-color: #2e2e4d;
+    }
+    .correct {
+      color: lightgreen;
+    }
+    .incorrect {
+      color: salmon;
+    }
+    #inputArea {
+      width: 100%;
+      height: 100px;
+      font-size: 18px;
+      padding: 10px;
+    }
+    .stats {
+      margin-top: 10px;
+    }
+    .timer {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Typing Speed Test</h1>
+    <div class="timer">⏱ Time left: <span id="timeLeft">60</span>s</div>
+    <div id="textDisplay"></div>
+    <textarea id="inputArea" placeholder="Start typing here..." disabled></textarea>
+    <div class="stats">
+      <p>📝 Accuracy: <span id="accuracy">0</span>%</p>
+      <p>🚀 WPM: <span id="wpm">0</span></p>
+    </div>
+    <button id="startBtn">Start Test</button>
+  </div>
+
+  <script>
+    const text = "The quick brown fox jumps over the lazy dog. Practice makes perfect, so keep typing and improve your skills every day!";
+    const textDisplay = document.getElementById("textDisplay");
+    const inputArea = document.getElementById("inputArea");
+    const timeLeft = document.getElementById("timeLeft");
+    const accuracyText = document.getElementById("accuracy");
+    const wpmText = document.getElementById("wpm");
+    const startBtn = document.getElementById("startBtn");
+
+    let timer;
+    let time = 60;
+    let wordsTyped = 0;
+    let isRunning = false;
+
+    function renderText() {
+      const words = text.split(" ");
+      textDisplay.innerHTML = words.map(word => `<span>${word}</span>`).join(" ");
+    }
+
+    function startTest() {
+      renderText();
+      inputArea.value = "";
+      inputArea.disabled = false;
+      inputArea.focus();
+      time = 60;
+      timeLeft.textContent = time;
+      wordsTyped = 0;
+      isRunning = true;
+      inputArea.disabled = false;
+      accuracyText.textContent = "0";
+      wpmText.textContent = "0";
+
+      timer = setInterval(() => {
+        time--;
+        timeLeft.textContent = time;
+        if (time === 0) {
+          clearInterval(timer);
+          inputArea.disabled = true;
+          calculateResults();
+          isRunning = false;
+        }
+      }, 1000);
+    }
+
+    function calculateResults() {
+      const inputWords = inputArea.value.trim().split(/\s+/);
+      const targetWords = text.trim().split(/\s+/);
+      let correct = 0;
+
+      inputWords.forEach((word, i) => {
+        if (word === targetWords[i]) {
+          correct++;
+        }
+      });
+
+      const accuracy = ((correct / inputWords.length) * 100).toFixed(1);
+      const wpm = correct; // Words per minute (60 seconds)
+
+      accuracyText.textContent = isNaN(accuracy) ? "0" : accuracy;
+      wpmText.textContent = isNaN(wpm) ? "0" : wpm;
+    }
+
+    inputArea.addEventListener("input", () => {
+      const inputWords = inputArea.value.trim().split(/\s+/);
+      const spans = textDisplay.querySelectorAll("span");
+
+      spans.forEach((span, i) => {
+        const word = inputWords[i];
+        if (word == null) {
+          span.className = "";
+        } else if (word === span.textContent) {
+          span.className = "correct";
+        } else {
+          span.className = "incorrect";
+        }
+      });
+    });
+
+    startBtn.addEventListener("click", () => {
+      if (!isRunning) startTest();
+    });
+
+    renderText();
+  </script>
+</body>
+</html>
+
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Typing Test</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #f4f4f4;
+      padding: 30px;
+    }
+    #testText span {
+      padding: 2px;
+    }
+    .correct { color: green; }
+    .incorrect { color: red; }
+    textarea {
+      width: 90%;
+      height: 100px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Typing Speed Test</h2>
+  <p><b>Time left:</b> <span id="timer">30</span> seconds</p>
+  <div id="testText"></div><br>
+
+  <textarea id="input" placeholder="Start typing..." disabled></textarea><br><br>
+
+  <button onclick="startTest()">Start Test</button>
+
+  <p><b>Accuracy:</b> <span id="accuracy">0</span>%</p>
+  <p><b>WPM:</b> <span id="wpm">0</span></p>
+
+  <script>
+    const paragraphList = [
+      "The quick brown fox jumps over the lazy dog",
+      "Typing fast and accurately is a useful skill",
+      "Practice every day to improve your typing speed",
+      "JavaScript helps you build interactive web apps",
+      "Stay focused and keep your hands on the keyboard"
+    ];
+
+    let words = [];
+    const textDiv = document.getElementById("testText");
+    const inputBox = document.getElementById("input");
+    const timerSpan = document.getElementById("timer");
+    const accuracySpan = document.getElementById("accuracy");
+    const wpmSpan = document.getElementById("wpm");
+
+    let timeLeft = 30;
+    let interval;
+
+    function startTest() {
+      // Pick a random paragraph
+      const randomText = paragraphList[Math.floor(Math.random() * paragraphList.length)];
+      words = randomText.split(" ");
+      textDiv.innerHTML = words.map(w => `<span>${w}</span>`).join(" ");
+
+      inputBox.value = "";
+      inputBox.disabled = false;
+      inputBox.focus();
+      timeLeft = 30;
+      timerSpan.textContent = timeLeft;
+      accuracySpan.textContent = "0";
+      wpmSpan.textContent = "0";
+      clearInterval(interval);
+
+      interval = setInterval(() => {
+        timeLeft--;
+        timerSpan.textContent = timeLeft;
+        if (timeLeft === 0) {
+          clearInterval(interval);
+          inputBox.disabled = true;
+          showResults();
+        }
+      }, 1000);
+    }
+
+    inputBox.addEventListener("input", () => {
+      const inputWords = inputBox.value.trim().split(" ");
+      const spans = textDiv.querySelectorAll("span");
+
+      spans.forEach((span, i) => {
+        span.className = "";
+        if (inputWords[i] == null) return;
+        if (inputWords[i] === words[i]) {
+          span.className = "correct";
+        } else {
+          span.className = "incorrect";
+        }
+      });
+    });
+
+    function showResults() {
+      const typed = inputBox.value.trim().split(" ");
+      let correct = 0;
+      typed.forEach((word, i) => {
+        if (word === words[i]) correct++;
+      });
+      const accuracy = (correct / typed.length) * 100 || 0;
+      const wpm = correct * 2; // 30 sec test scaled to 60 sec
+
+      accuracySpan.textContent = accuracy.toFixed(1);
+      wpmSpan.textContent = wpm;
+    }
+  </script>
+
+</body>
+</html> -->
